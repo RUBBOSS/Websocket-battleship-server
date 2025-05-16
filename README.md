@@ -10,6 +10,7 @@ A multiplayer Battleship game server implementation using WebSockets for real-ti
 - Ship placement validation
 - Turn-based gameplay
 - Winner tracking and leaderboard
+- Single-player mode with AI opponent
 
 ## Technologies
 
@@ -66,6 +67,7 @@ The server and client communicate using JSON messages with the following format:
 
 - `reg` - Register/login player
 - `create_room` - Create a new game room
+- `create_bot_game` - Create a game against the AI bot
 - `add_user_to_room` - Join an existing room
 - `add_ships` - Add ships to the game board
 - `attack` - Attack opponent's board
@@ -81,6 +83,19 @@ The server and client communicate using JSON messages with the following format:
 - `turn` - Turn notification
 - `attack` - Attack result
 - `finish` - Game finished notification
+
+## Single Player Mode
+
+The game supports a single-player mode where you can play against an AI bot. To start a game with the bot:
+
+1. Register/login with the `reg` command
+2. Send a `create_bot_game` command to create a game with the bot
+3. Place your ships with the `add_ships` command
+4. The bot will automatically place its ships
+5. Play the game normally using `attack` or `randomAttack` commands
+6. The bot will automatically take its turn when it's time
+
+The bot uses a simple random strategy for both ship placement and attacks.
 
 ## Project Structure
 
