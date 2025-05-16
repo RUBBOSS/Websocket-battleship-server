@@ -1,4 +1,3 @@
-
 import { Database, Player, Room, Game, WinnerData } from '../models/interfaces.js';
 
 class DatabaseService {
@@ -13,7 +12,6 @@ class DatabaseService {
       winners: []
     };
   }
-
 
   public static getInstance(): DatabaseService {
     if (!DatabaseService.instance) {
@@ -93,6 +91,14 @@ class DatabaseService {
     this.db.games.delete(id);
   }
 
+  /**
+   * Get all games
+   */
+  public getAllGames(): Game[] {
+    return Array.from(this.db.games.values());
+  }
+
+  // Winner methods
   public addWinner(name: string): void {
     const winner = this.db.winners.find(w => w.name === name);
     

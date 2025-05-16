@@ -1,3 +1,20 @@
+/**
+ * Message Types:
+ * - reg: Register/login a player
+ * - create_room: Create a new game room
+ * - add_user_to_room: Join an existing room
+ * - create_bot_game: Create a game with a bot player
+ * - add_ships: Add ships to the game board
+ * - attack: Attack a position on the opponent's board
+ * - randomAttack: Make a random attack
+ * - update_room: Update room status
+ * - update_winners: Update winners table
+ * - create_game: Game created notification
+ * - start_game: Game started notification
+ * - turn: Turn notification
+ * - attack (response): Attack result notification
+ * - finish: Game finish notification
+ */
 export interface Message {
   type: string;
   data: any;

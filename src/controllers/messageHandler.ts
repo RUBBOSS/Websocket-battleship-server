@@ -1,4 +1,3 @@
-
 import { WebSocket } from 'ws';
 import { 
   Message, 
@@ -12,6 +11,7 @@ import PlayerService from '../services/player.service.js';
 import RoomService from '../services/room.service.js';
 import GameService from '../services/game.service.js';
 import WebSocketService from '../services/websocket.service.js';
+import BotService from '../services/bot.service.js';
 
 
 class MessageHandler {
@@ -19,12 +19,14 @@ class MessageHandler {
   private playerService: PlayerService;
   private roomService: RoomService;
   private gameService: GameService;
+  private botService: BotService;
   private wss: WebSocketService;
 
   private constructor() {
     this.playerService = PlayerService.getInstance();
     this.roomService = RoomService.getInstance();
     this.gameService = GameService.getInstance();
+    this.botService = BotService.getInstance();
     this.wss = null as unknown as WebSocketService;
   }
 
@@ -48,6 +50,13 @@ class MessageHandler {
     this.roomService.setGameService(this.gameService);
     this.gameService.setWebSocketService(this.wss);
     this.gameService.setPlayerService(this.playerService);
+    
+    // Set up bot service
+    this.botService.setWebSocketService(this.wss);
+    this.botService.setGameService(this.gameService);
+    
+    // Start bot game monitoring
+    this.botService.monitorGames();
 
     this.wss.on('message', (message: Message, connection: WebSocket) => {
       this.handleMessage(message, connection);
@@ -63,6 +72,9 @@ class MessageHandler {
           break;
         case 'create_room':
           this.handleCreateRoom(message, connection);
+          break;
+        case 'create_bot_game':
+          this.handleCreateBotGame(connection);
           break;
         case 'add_user_to_room':
           this.handleAddUserToRoom(message.data, connection);
@@ -120,7 +132,32 @@ class MessageHandler {
   }
 
 
+  private handleCreateBotGame(connection: WebSocket): void {
+    // Find the player by connection
+    const players = this.playerService.getPlayers();
+    const player = players.find(p => p.connection === connection);
+    
+    if (!player) {
+      throw new Error('Player not found');
+    }
+    
+    // Create a game with the bot
+    const gameId = this.botService.createGameWithBot(player.id);
+    
+    // Send create_game message to the player
+    this.wss.sendToPlayer(player.id, {
+      type: 'create_game',
+      data: {
+        idGame: gameId,
+        idPlayer: player.id
+      },
+      id: 0
+    });
+  }
+
+
   private handleAddUserToRoom(data: AddUserToRoomData, connection: WebSocket): void {
+    // Find the player by connection
     const players = this.playerService.getPlayers();
     const player = players.find(p => p.connection === connection);
     
