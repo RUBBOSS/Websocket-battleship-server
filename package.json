@@ -1,0 +1,26 @@
+{
+    "name": "battleship",
+    "version": "1.0.0",
+    "description": "Battleship game with WebSocket server",
+    "main": "dist/index.js",
+    "type": "module",
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/index.js",
+        "start:dev": "nodemon --exec ts-node src/index.ts",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Andrei Auchynnikau",
+    "keywords": [],
+    "license": "ISC",
+    "devDependencies": {
+        "cross-env": "^7.0.3",
+        "dotenv": "^16.3.1",
+        "nodemon": "^2.0.16",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.2.2"
+    },
+    "dependencies": {
+        "ws": "^8.8.0"
+    }
+}
