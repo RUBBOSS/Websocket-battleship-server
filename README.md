@@ -95,7 +95,19 @@ The game supports a single-player mode where you can play against an AI bot. To 
 5. Play the game normally using `attack` or `randomAttack` commands
 6. The bot will automatically take its turn when it's time
 
-The bot uses a simple random strategy for both ship placement and attacks.
+The bot uses a more intelligent strategy:
+1. It places ships randomly but ensures they don't overlap or touch each other
+2. For attacks, it uses a "hunt and target" strategy:
+   - When it hits a ship but hasn't sunk it, it will target adjacent cells
+   - When it identifies the orientation of a partially hit ship, it focuses on that direction
+   - Otherwise, it uses random shots
+
+A test script is available at `src/utils/test-bot.js` to try out the bot functionality:
+
+```
+npm run build
+node dist/utils/test-bot.js
+```
 
 ## Project Structure
 
