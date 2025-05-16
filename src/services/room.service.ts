@@ -1,9 +1,9 @@
 
-import { v4 as uuidv4 } from 'uuid';
 import { Room, RoomUser, CreateGameResponse } from '../models/interfaces.js';
 import DatabaseService from './database.service.js';
 import GameService from './game.service.js';
 import WebSocketService from './websocket.service.js';
+import { generateUUID } from '../utils/uuid.js';
 
 
 class RoomService {
@@ -36,9 +36,8 @@ class RoomService {
     this.gameService = gameService;
   }
 
-
   public createRoom(playerId: string): Room {
-    const roomId = uuidv4();
+    const roomId = generateUUID();
     const player = this.db.getPlayer(playerId);
     
     if (!player) {

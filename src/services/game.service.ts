@@ -1,5 +1,4 @@
 
-import { v4 as uuidv4 } from 'uuid';
 import { 
   Game, 
   GamePlayer, 
@@ -11,6 +10,7 @@ import {
 import DatabaseService from './database.service.js';
 import WebSocketService from './websocket.service.js';
 import PlayerService from './player.service.js';
+import { generateUUID } from '../utils/uuid.js';
 
 
 class GameService {
@@ -43,9 +43,8 @@ class GameService {
     this.playerService = playerService;
   }
 
-
   public createGame(player1Id: string, player2Id: string): string {
-    const gameId = uuidv4();
+    const gameId = generateUUID();
     
     const player1: GamePlayer = {
       id: player1Id,

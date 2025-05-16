@@ -1,8 +1,8 @@
-import { v4 as uuidv4 } from 'uuid';
 import { Ship, Position, Game, GamePlayer, Player } from '../models/interfaces.js';
 import DatabaseService from './database.service.js';
 import GameService from './game.service.js';
 import WebSocketService from './websocket.service.js';
+import { generateUUID } from '../utils/uuid.js';
 
 
 class BotService {
@@ -25,11 +25,10 @@ class BotService {
     { type: 'small', length: 1 },
     { type: 'small', length: 1 },
   ] as const;
-
   private constructor() {
     this.db = DatabaseService.getInstance();
     
-    const botId = uuidv4();
+    const botId = generateUUID();
     this.botPlayer = {
       id: botId,
       name: 'Bot Player',
@@ -69,7 +68,7 @@ class BotService {
 
 
   public createGameWithBot(playerId: string): string {
-    const gameId = uuidv4();
+    const gameId = generateUUID();
     
     const humanPlayer: GamePlayer = {
       id: playerId,

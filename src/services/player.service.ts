@@ -1,8 +1,8 @@
-import { v4 as uuidv4 } from 'uuid';
 import { WebSocket } from 'ws';
 import { Player, RegData, RegResponse } from '../models/interfaces.js';
 import DatabaseService from './database.service.js';
 import WebSocketService from './websocket.service.js';
+import { generateUUID } from '../utils/uuid.js';
 
 
 class PlayerService {
@@ -48,10 +48,9 @@ class PlayerService {
           index: '',
           error: true,
           errorText: 'Incorrect password'
-        };
-      }
+        };      }
     } else {
-      const newPlayerId = uuidv4();
+      const newPlayerId = generateUUID();
       const newPlayer: Player = {
         id: newPlayerId,
         name: data.name,
