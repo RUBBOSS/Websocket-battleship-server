@@ -9,7 +9,7 @@ class DatabaseService {
       players: new Map<string, Player>(),
       rooms: new Map<string, Room>(),
       games: new Map<string, Game>(),
-      winners: []
+      winners: [],
     };
   }
 
@@ -51,7 +51,7 @@ class DatabaseService {
 
   public getRoomByPlayer(playerId: string): Room | undefined {
     for (const room of this.db.rooms.values()) {
-      if (room.roomUsers.some(user => user.index === playerId)) {
+      if (room.roomUsers.some((user) => user.index === playerId)) {
         return room;
       }
     }
@@ -76,7 +76,7 @@ class DatabaseService {
 
   public getGameByPlayer(playerId: string): Game | undefined {
     for (const game of this.db.games.values()) {
-      if (game.players.some(player => player.id === playerId)) {
+      if (game.players.some((player) => player.id === playerId)) {
         return game;
       }
     }
@@ -91,23 +91,19 @@ class DatabaseService {
     this.db.games.delete(id);
   }
 
-  /**
-   * Get all games
-   */
   public getAllGames(): Game[] {
     return Array.from(this.db.games.values());
   }
 
-  // Winner methods
   public addWinner(name: string): void {
-    const winner = this.db.winners.find(w => w.name === name);
-    
+    const winner = this.db.winners.find((w) => w.name === name);
+
     if (winner) {
       winner.wins++;
     } else {
       this.db.winners.push({ name, wins: 1 });
     }
-    
+
     const player = this.getPlayerByName(name);
     if (player) {
       player.wins++;

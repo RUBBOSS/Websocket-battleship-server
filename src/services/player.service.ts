@@ -1,20 +1,17 @@
-import { WebSocket } from 'ws';
 import { Player, RegData, RegResponse } from '../models/interfaces.js';
+import { ExtendedWebSocket } from '../models/websocket.js';
 import DatabaseService from './database.service.js';
 import WebSocketService from './websocket.service.js';
 import { generateUUID } from '../utils/uuid.js';
-
 
 class PlayerService {
   private static instance: PlayerService;
   private db: DatabaseService;
   private wss: WebSocketService;
-
   private constructor() {
     this.db = DatabaseService.getInstance();
-    this.wss = null as unknown as WebSocketService;
+    this.wss = null!;
   }
-
 
   public static getInstance(): PlayerService {
     if (!PlayerService.instance) {
@@ -26,29 +23,28 @@ class PlayerService {
   public setWebSocketService(wss: WebSocketService): void {
     this.wss = wss;
   }
-
-
-  public registerPlayer(data: RegData, connection: WebSocket): RegResponse {
+  public registerPlayer(data: RegData, connection: ExtendedWebSocket): RegResponse {
     const existingPlayer = this.db.getPlayerByName(data.name);
-    
+
     if (existingPlayer) {
       if (existingPlayer.password === data.password) {
         existingPlayer.connection = connection;
         this.db.addPlayer(existingPlayer);
-        
+
         return {
           name: existingPlayer.name,
           index: existingPlayer.id,
           error: false,
-          errorText: ''
+          errorText: '',
         };
       } else {
         return {
           name: data.name,
           index: '',
           error: true,
-          errorText: 'Incorrect password'
-        };      }
+          errorText: 'Incorrect password',
+        };
+      }
     } else {
       const newPlayerId = generateUUID();
       const newPlayer: Player = {
@@ -56,30 +52,27 @@ class PlayerService {
         name: data.name,
         password: data.password,
         connection,
-        wins: 0
+        wins: 0,
       };
-      
+
       this.db.addPlayer(newPlayer);
-      
+
       return {
         name: newPlayer.name,
         index: newPlayer.id,
         error: false,
-        errorText: ''
+        errorText: '',
       };
     }
   }
-
 
   public getPlayer(id: string): Player | undefined {
     return this.db.getPlayer(id);
   }
 
-
   public getPlayerByName(name: string): Player | undefined {
     return this.db.getPlayerByName(name);
   }
-
 
   public getPlayers(): Player[] {
     return this.db.getAllPlayers();

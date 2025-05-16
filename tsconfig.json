@@ -1,5 +1,4 @@
-{
-  "compilerOptions": {
+{  "compilerOptions": {
     "target": "ES2020",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
@@ -8,7 +7,8 @@
     "rootDir": "./src",
     "strict": true,
     "sourceMap": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "isolatedModules": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts"]

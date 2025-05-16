@@ -1,25 +1,26 @@
-/**
- * Message Types:
- * - reg: Register/login a player
- * - create_room: Create a new game room
- * - add_user_to_room: Join an existing room
- * - create_bot_game: Create a game with a bot player
- * - add_ships: Add ships to the game board
- * - attack: Attack a position on the opponent's board
- * - randomAttack: Make a random attack
- * - update_room: Update room status
- * - update_winners: Update winners table
- * - create_game: Game created notification
- * - start_game: Game started notification
- * - turn: Turn notification
- * - attack (response): Attack result notification
- * - finish: Game finish notification
- */
+import { ExtendedWebSocket } from './websocket.js';
+
 export interface Message {
   type: string;
-  data: any;
+  data: unknown;
   id: number;
 }
+
+export type MessageType =
+  | 'reg'
+  | 'create_room'
+  | 'add_user_to_room'
+  | 'create_bot_game'
+  | 'add_ships'
+  | 'attack'
+  | 'randomAttack'
+  | 'update_room'
+  | 'update_winners'
+  | 'create_game'
+  | 'start_game'
+  | 'turn'
+  | 'finish'
+  | 'error';
 
 export interface RegData {
   name: string;
@@ -110,7 +111,7 @@ export interface Player {
   id: string;
   name: string;
   password: string;
-  connection: any;
+  connection: ExtendedWebSocket;
   wins: number;
 }
 

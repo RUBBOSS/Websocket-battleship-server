@@ -18,6 +18,8 @@ A multiplayer Battleship game server implementation using WebSockets for real-ti
 - Node.js
 - WebSockets (ws library)
 - HTTP server for serving static files
+- ESLint for code quality
+- Prettier for code formatting
 
 ## Installation
 
@@ -41,6 +43,20 @@ npm run start:dev
 ```
 - HTTP server @ `http://localhost:3000`
 - WebSocket server @ `ws://localhost:8080`
+
+### Code Quality
+
+```
+npm run lint       # Check code with ESLint
+npm run lint:fix   # Fix lint issues automatically
+npm run format     # Format code with Prettier
+```
+
+### Testing
+
+```
+npm test           # Run all tests with Jest
+```
 
 ### Production
 
@@ -116,7 +132,13 @@ node dist/utils/test-bot.js
   - `/http_server` - HTTP server for static files
   - `/models` - TypeScript interfaces
   - `/services` - Game logic services
+  - `/utils` - Utility functions
   - `index.ts` - Main application entry point
+- `/__tests__` - Test files
+- `.eslintrc.json` - ESLint configuration
+- `.prettierrc` - Prettier configuration
+- `jest.config.js` - Jest test configuration
+- `.husky` - Git hooks for code quality
 
 ## License
 
