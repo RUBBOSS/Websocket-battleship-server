@@ -227,13 +227,7 @@
 <a name='L162'></a><a href='#L162'>162</a>
 <a name='L163'></a><a href='#L163'>163</a>
 <a name='L164'></a><a href='#L164'>164</a>
-<a name='L165'></a><a href='#L165'>165</a>
-<a name='L166'></a><a href='#L166'>166</a>
-<a name='L167'></a><a href='#L167'>167</a>
-<a name='L168'></a><a href='#L168'>168</a>
-<a name='L169'></a><a href='#L169'>169</a>
-<a name='L170'></a><a href='#L170'>170</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L165'></a><a href='#L165'>165</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -282,13 +276,10 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -321,7 +312,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -401,8 +391,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { WebSocket } from 'ws';
-import {
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import {
   Message,
   RegData,
   AddUserToRoomData,
@@ -410,6 +399,7 @@ import {
   AttackData,
   RandomAttackData,
 } from '../models/interfaces.js';
+import { ExtendedWebSocket } from '../models/websocket.js';
 import PlayerService from '../services/player.service.js';
 import RoomService from '../services/room.service.js';
 import GameService from '../services/game.service.js';
@@ -423,13 +413,12 @@ class MessageHandler {
   private gameService: GameService;
   private botService: BotService;
   private wss: WebSocketService;
-&nbsp;
 <span class="fstat-no" title="function not covered" >  private constructor() {</span>
 <span class="cstat-no" title="statement not covered" >    this.playerService = PlayerService.getInstance();</span>
 <span class="cstat-no" title="statement not covered" >    this.roomService = RoomService.getInstance();</span>
 <span class="cstat-no" title="statement not covered" >    this.gameService = GameService.getInstance();</span>
 <span class="cstat-no" title="statement not covered" >    this.botService = BotService.getInstance();</span>
-<span class="cstat-no" title="statement not covered" >    this.wss = null as unknown as WebSocketService;</span>
+<span class="cstat-no" title="statement not covered" >    this.wss = null!;</span>
   }
 &nbsp;
   public <span class="fstat-no" title="function not covered" >static </span>getInstance(): MessageHandler {
@@ -451,20 +440,17 @@ class MessageHandler {
 <span class="cstat-no" title="statement not covered" >    this.gameService.setPlayerService(this.playerService);</span>
 <span class="cstat-no" title="statement not covered" >    this.botService.setWebSocketService(this.wss);</span>
 <span class="cstat-no" title="statement not covered" >    this.botService.setGameService(this.gameService);</span>
-&nbsp;
 <span class="cstat-no" title="statement not covered" >    this.botService.monitorGames();</span>
 &nbsp;
-    // Use the type-safe onMessage method instead of generic on
-<span class="cstat-no" title="statement not covered" >    this.wss.onMessage(<span class="fstat-no" title="function not covered" >(m</span>essage: Message, connection: WebSocket) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    this.wss.onMessage(<span class="fstat-no" title="function not covered" >(m</span>essage: Message, connection: ExtendedWebSocket) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >      this.handleMessage(message, connection);</span>
     });
   }
-&nbsp;
-  private <span class="fstat-no" title="function not covered" >handleMessage(</span>message: Message, connection: WebSocket): void {
+  private <span class="fstat-no" title="function not covered" >handleMessage(</span>message: Message, connection: ExtendedWebSocket): void {
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      switch (message.type) {</span>
         case 'reg':
-<span class="cstat-no" title="statement not covered" >          this.handleRegistration(message.data, connection);</span>
+<span class="cstat-no" title="statement not covered" >          this.handleRegistration(message.data as RegData, connection);</span>
 <span class="cstat-no" title="statement not covered" >          break;</span>
         case 'create_room':
 <span class="cstat-no" title="statement not covered" >          this.handleCreateRoom(message, connection);</span>
@@ -473,16 +459,16 @@ class MessageHandler {
 <span class="cstat-no" title="statement not covered" >          this.handleCreateBotGame(connection);</span>
 <span class="cstat-no" title="statement not covered" >          break;</span>
         case 'add_user_to_room':
-<span class="cstat-no" title="statement not covered" >          this.handleAddUserToRoom(message.data, connection);</span>
+<span class="cstat-no" title="statement not covered" >          this.handleAddUserToRoom(message.data as AddUserToRoomData, connection);</span>
 <span class="cstat-no" title="statement not covered" >          break;</span>
         case 'add_ships':
-<span class="cstat-no" title="statement not covered" >          this.handleAddShips(message.data);</span>
+<span class="cstat-no" title="statement not covered" >          this.handleAddShips(message.data as AddShipsData);</span>
 <span class="cstat-no" title="statement not covered" >          break;</span>
         case 'attack':
-<span class="cstat-no" title="statement not covered" >          this.handleAttack(message.data);</span>
+<span class="cstat-no" title="statement not covered" >          this.handleAttack(message.data as AttackData);</span>
 <span class="cstat-no" title="statement not covered" >          break;</span>
         case 'randomAttack':
-<span class="cstat-no" title="statement not covered" >          this.handleRandomAttack(message.data);</span>
+<span class="cstat-no" title="statement not covered" >          this.handleRandomAttack(message.data as RandomAttackData);</span>
 <span class="cstat-no" title="statement not covered" >          break;</span>
         default:
 <span class="cstat-no" title="statement not covered" >          console.warn(`Unknown message type: ${message.type}`);</span>
@@ -498,8 +484,7 @@ class MessageHandler {
       });
     }
   }
-&nbsp;
-  private <span class="fstat-no" title="function not covered" >handleRegistration(</span>data: RegData, connection: WebSocket): void {
+  private <span class="fstat-no" title="function not covered" >handleRegistration(</span>data: RegData, connection: ExtendedWebSocket): void {
     const response = <span class="cstat-no" title="statement not covered" >this.playerService.registerPlayer(data, connection);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    this.wss.sendToClient(connection, {</span>
@@ -514,7 +499,7 @@ class MessageHandler {
     }
   }
 &nbsp;
-  private <span class="fstat-no" title="function not covered" >handleCreateRoom(</span>message: Message, connection: WebSocket): void {
+  private <span class="fstat-no" title="function not covered" >handleCreateRoom(</span>message: Message, connection: ExtendedWebSocket): void {
     const players = <span class="cstat-no" title="statement not covered" >this.playerService.getPlayers();</span>
     const player = <span class="cstat-no" title="statement not covered" >players.find(<span class="fstat-no" title="function not covered" >(p</span>) =&gt; <span class="cstat-no" title="statement not covered" >p.connection === connection)</span>;</span>
 &nbsp;
@@ -525,7 +510,7 @@ class MessageHandler {
 <span class="cstat-no" title="statement not covered" >    this.roomService.createRoom(player.id);</span>
   }
 &nbsp;
-  private <span class="fstat-no" title="function not covered" >handleCreateBotGame(</span>connection: WebSocket): void {
+  private <span class="fstat-no" title="function not covered" >handleCreateBotGame(</span>connection: ExtendedWebSocket): void {
     const players = <span class="cstat-no" title="statement not covered" >this.playerService.getPlayers();</span>
     const player = <span class="cstat-no" title="statement not covered" >players.find(<span class="fstat-no" title="function not covered" >(p</span>) =&gt; <span class="cstat-no" title="statement not covered" >p.connection === connection)</span>;</span>
 &nbsp;
@@ -545,7 +530,7 @@ class MessageHandler {
     });
   }
 &nbsp;
-  private <span class="fstat-no" title="function not covered" >handleAddUserToRoom(</span>data: AddUserToRoomData, connection: WebSocket): void {
+  private <span class="fstat-no" title="function not covered" >handleAddUserToRoom(</span>data: AddUserToRoomData, connection: ExtendedWebSocket): void {
     const players = <span class="cstat-no" title="statement not covered" >this.playerService.getPlayers();</span>
     const player = <span class="cstat-no" title="statement not covered" >players.find(<span class="fstat-no" title="function not covered" >(p</span>) =&gt; <span class="cstat-no" title="statement not covered" >p.connection === connection)</span>;</span>
 &nbsp;
@@ -577,7 +562,7 @@ export default MessageHandler;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-16T20:43:27.052Z
+                at 2025-05-16T21:23:51.731Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

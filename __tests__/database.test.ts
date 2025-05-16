@@ -1,11 +1,14 @@
 import DatabaseService from '../src/services/database.service.js';
 import { Player, Room, Game } from '../src/models/interfaces.js';
+import { ExtendedWebSocket } from '../src/models/websocket.js';
 import { generateUUID } from '../src/utils/uuid.js';
+import { mock } from 'jest-mock-extended';
 
 describe('DatabaseService', () => {
   let dbService: DatabaseService;
   let playerId: string;
   let player: Player;
+  let mockWs: ExtendedWebSocket;
 
   beforeEach(() => {
     dbService = DatabaseService.getInstance();
@@ -24,11 +27,17 @@ describe('DatabaseService', () => {
     });
 
     playerId = generateUUID();
+
+    mockWs = mock<ExtendedWebSocket>({
+      readyState: 1,
+      isAlive: true,
+    });
+
     player = {
       id: playerId,
       name: 'Test Player',
       password: 'password',
-      connection: null,
+      connection: mockWs,
       wins: 0,
     };
     dbService.addPlayer(player);
