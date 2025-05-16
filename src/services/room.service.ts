@@ -14,7 +14,6 @@ class RoomService {
 
   private constructor() {
     this.db = DatabaseService.getInstance();
-    // These services will be set later to avoid circular dependency
     this.wss = null as unknown as WebSocketService;
     this.gameService = null as unknown as GameService;
   }

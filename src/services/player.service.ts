@@ -81,9 +81,7 @@ class PlayerService {
     return this.db.getPlayerByName(name);
   }
 
-  /**
-   * Get all players
-   */
+
   public getPlayers(): Player[] {
     return this.db.getAllPlayers();
   }

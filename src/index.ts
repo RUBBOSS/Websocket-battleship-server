@@ -1,36 +1,47 @@
-import { createServer } from 'http';
-import { WebSocketServer } from 'ws';
-import { httpServer } from './http_server/index.js';
-import { initMessageHandler } from './controllers/messageHandler.js';
-import { getWsServer } from './services/websocket.service.js';
 
-const HTTP_PORT = 8181;
-const WS_PORT = 8080;
+import 'dotenv/config';
+import WebSocketService from './services/websocket.service.js';
+import HttpServer from './http_server/index.js';
+import MessageHandler from './controllers/messageHandler.js';
 
-// Start HTTP server for static files
-console.log(`Starting static HTTP server on port ${HTTP_PORT}`);
-httpServer.listen(HTTP_PORT);
+const HTTP_PORT = process.env.HTTP_PORT ? parseInt(process.env.HTTP_PORT, 10) : 3000;
+const WS_PORT = process.env.WS_PORT ? parseInt(process.env.WS_PORT, 10) : 8080;
 
-// Create WebSocket server
-const wss = new WebSocketServer({ port: WS_PORT });
-console.log(`WebSocket server is running on ws://localhost:${WS_PORT}`);
 
-// Initialize WebSocket service with the server instance
-getWsServer(wss);
+class BattleshipApp {
+  private httpServer: HttpServer;
+  private wsService: WebSocketService;
+  private messageHandler: MessageHandler;
 
-// Initialize message handler
-initMessageHandler(wss);
+  constructor() {
+    this.httpServer = new HttpServer(HTTP_PORT);
+    
+    this.wsService = WebSocketService.getInstance(WS_PORT);
+    
+    this.messageHandler = MessageHandler.getInstance();
+    this.messageHandler.setWebSocketService(this.wsService);
+    this.messageHandler.initialize();
+  }
 
-// Handle WebSocket server errors
-wss.on('error', (error) => {
-    console.error('WebSocket server error:', error);
+
+  public start(): void {
+    this.httpServer.start();
+    
+    console.log(`Battleship game server started`);
+    console.log(`HTTP server running on port ${HTTP_PORT}`);
+    console.log(`WebSocket server running on port ${WS_PORT}`);
+  }
+}
+
+const app = new BattleshipApp();
+app.start();
+
+process.on('SIGINT', () => {
+  console.log('Shutting down server...');
+  process.exit(0);
 });
 
-// Handle process termination to properly close the WebSocket server
-process.on('SIGINT', () => {
-    console.log('Shutting down WebSocket server');
-    wss.close(() => {
-        console.log('WebSocket server closed');
-        process.exit(0);
-    });
+process.on('SIGTERM', () => {
+  console.log('Shutting down server...');
+  process.exit(0);
 });

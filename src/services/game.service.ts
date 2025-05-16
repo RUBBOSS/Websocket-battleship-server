@@ -281,7 +281,7 @@ class GameService {
     for (let i = 0; i < ship.length; i++) {
       if (ship.direction) {
         cells.push({ x: x + i, y });
-      } else { // vertical
+      } else {
         cells.push({ x, y: y + i });
       }
     }
