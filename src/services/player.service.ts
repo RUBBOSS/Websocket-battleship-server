@@ -1,4 +1,3 @@
-
 import { v4 as uuidv4 } from 'uuid';
 import { WebSocket } from 'ws';
 import { Player, RegData, RegResponse } from '../models/interfaces.js';
@@ -82,6 +81,12 @@ class PlayerService {
     return this.db.getPlayerByName(name);
   }
 
+  /**
+   * Get all players
+   */
+  public getPlayers(): Player[] {
+    return this.db.getAllPlayers();
+  }
 
   public updateWinners(playerId: string): void {
     const player = this.db.getPlayer(playerId);
