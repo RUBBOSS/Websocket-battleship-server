@@ -1,9 +1,6 @@
 
 import { Database, Player, Room, Game, WinnerData } from '../models/interfaces.js';
 
-/**
- * In-memory database service for storing game data
- */
 class DatabaseService {
   private static instance: DatabaseService;
   private db: Database;
@@ -17,9 +14,7 @@ class DatabaseService {
     };
   }
 
-  /**
-   * Get singleton instance
-   */
+
   public static getInstance(): DatabaseService {
     if (!DatabaseService.instance) {
       DatabaseService.instance = new DatabaseService();
@@ -27,7 +22,6 @@ class DatabaseService {
     return DatabaseService.instance;
   }
 
-  // Player methods
   public addPlayer(player: Player): void {
     this.db.players.set(player.id, player);
   }
@@ -49,7 +43,6 @@ class DatabaseService {
     return Array.from(this.db.players.values());
   }
 
-  // Room methods
   public addRoom(room: Room): void {
     this.db.rooms.set(room.roomId.toString(), room);
   }
@@ -75,7 +68,6 @@ class DatabaseService {
     return Array.from(this.db.rooms.values());
   }
 
-  // Game methods
   public addGame(game: Game): void {
     this.db.games.set(game.id, game);
   }
@@ -101,7 +93,6 @@ class DatabaseService {
     this.db.games.delete(id);
   }
 
-  // Winner methods
   public addWinner(name: string): void {
     const winner = this.db.winners.find(w => w.name === name);
     
@@ -111,7 +102,6 @@ class DatabaseService {
       this.db.winners.push({ name, wins: 1 });
     }
     
-    // Update player wins count
     const player = this.getPlayerByName(name);
     if (player) {
       player.wins++;
