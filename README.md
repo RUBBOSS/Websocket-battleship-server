@@ -1,31 +1,96 @@
-# RSSchool NodeJS websocket task template
-> Static http server and base task packages. 
-> By default WebSocket client tries to connect to the 3000 port.
+# Battleship WebSocket Game Server
+
+A multiplayer Battleship game server implementation using WebSockets for real-time communication.
+
+## Features
+
+- WebSocket server for real-time game updates
+- Player registration and authentication
+- Room management for game sessions
+- Ship placement validation
+- Turn-based gameplay
+- Winner tracking and leaderboard
+
+## Technologies
+
+- TypeScript
+- Node.js
+- WebSockets (ws library)
+- HTTP server for serving static files
 
 ## Installation
-1. Clone/download repo
-2. `npm install`
+
+1. Clone the repository
+2. Install dependencies:
+```
+npm install
+```
+3. Configure environment variables in `.env` file (or use the defaults):
+```
+HTTP_PORT=3000
+WS_PORT=8080
+```
 
 ## Usage
-**Development**
 
-`npm run start:dev`
+### Development
 
-* App served @ `http://localhost:8181` with nodemon
+```
+npm run start:dev
+```
+- HTTP server @ `http://localhost:3000`
+- WebSocket server @ `ws://localhost:8080`
 
-**Production**
+### Production
 
-`npm run start`
+```
+npm run build
+npm run start
+```
+- HTTP server @ `http://localhost:3000`
+- WebSocket server @ `ws://localhost:8080`
 
-* App served @ `http://localhost:8181` without nodemon
+## Game Protocol
 
----
+The server and client communicate using JSON messages with the following format:
 
-**All commands**
+```typescript
+{
+  type: string;  // Message type
+  data: any;     // Message data
+  id: number;    // Always 0 in this implementation
+}
+```
 
-Command | Description
---- | ---
-`npm run start:dev` | App served @ `http://localhost:8181` with nodemon
-`npm run start` | App served @ `http://localhost:8181` without nodemon
+### Player Commands
 
-**Note**: replace `npm` with `yarn` in `package.json` if you use yarn.
+- `reg` - Register/login player
+- `create_room` - Create a new game room
+- `add_user_to_room` - Join an existing room
+- `add_ships` - Add ships to the game board
+- `attack` - Attack opponent's board
+- `randomAttack` - Perform a random attack
+
+### Server Responses
+
+- `reg` - Registration/login response
+- `update_room` - Room list update
+- `update_winners` - Winners list update
+- `create_game` - Game created notification
+- `start_game` - Game started notification
+- `turn` - Turn notification
+- `attack` - Attack result
+- `finish` - Game finished notification
+
+## Project Structure
+
+- `/src` - Source code
+  - `/controllers` - Message handling
+  - `/http_server` - HTTP server for static files
+  - `/models` - TypeScript interfaces
+  - `/services` - Game logic services
+  - `index.ts` - Main application entry point
+
+## License
+
+ISC
