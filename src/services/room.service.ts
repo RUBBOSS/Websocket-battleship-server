@@ -35,6 +35,7 @@ class RoomService {
     const player = this.db.getPlayer(playerId);
 
     if (!player) {
+      console.error(`Player not found with ID: ${playerId}`);
       throw new Error('Player not found');
     }
 
@@ -49,6 +50,7 @@ class RoomService {
     };
 
     this.db.addRoom(room);
+    console.log(`Room created with ID: ${roomId}, player: ${player.name}`);
 
     this.wss.broadcastRoomsUpdate();
 
@@ -56,19 +58,30 @@ class RoomService {
   }
 
   public addUserToRoom(playerId: string, roomId: string): CreateGameResponse {
-    const room = this.db.getRoom(roomId);
+    // Ensure we're working with string IDs consistently
+    const normalizedRoomId = String(roomId);
+    const room = this.db.getRoom(normalizedRoomId);
     const player = this.db.getPlayer(playerId);
 
     if (!room) {
+      console.error(`Room not found with ID: ${normalizedRoomId}`);
       throw new Error('Room not found');
     }
 
     if (!player) {
+      console.error(`Player not found with ID: ${playerId}`);
       throw new Error('Player not found');
     }
 
     if (room.roomUsers.length >= 2) {
+      console.warn(`Room ${normalizedRoomId} is full`);
       throw new Error('Room is full');
+    }
+
+    // Check if player is already in the room
+    if (room.roomUsers.some((user) => user.index === player.id)) {
+      console.warn(`Player ${player.name} already in room ${normalizedRoomId}`);
+      throw new Error('Player already in room');
     }
 
     const roomUser: RoomUser = {
@@ -77,10 +90,12 @@ class RoomService {
     };
 
     room.roomUsers.push(roomUser);
+    console.log(`Player ${player.name} joined room ${normalizedRoomId}`);
 
     this.db.addRoom(room);
 
     if (room.roomUsers.length === 2) {
+      console.log(`Room ${normalizedRoomId} is full, creating game`);
       const gameId = this.gameService.createGame(
         room.roomUsers[0].index.toString(),
         room.roomUsers[1].index.toString(),
@@ -100,13 +115,13 @@ class RoomService {
 
       this.wss.sendToPlayer(room.roomUsers[0].index.toString(), {
         type: 'create_game',
-        data: createGameResponse1,
+        data: JSON.stringify(createGameResponse1),
         id: 0,
       });
 
       this.wss.sendToPlayer(room.roomUsers[1].index.toString(), {
         type: 'create_game',
-        data: createGameResponse2,
+        data: JSON.stringify(createGameResponse2),
         id: 0,
       });
 
@@ -123,7 +138,7 @@ class RoomService {
 
   public getAvailableRooms(): Room[] {
     const rooms = this.db.getAllRooms();
-    return rooms.filter((room) => room.roomUsers.length === 1);
+    return rooms.filter((room) => room.roomUsers.length < 2);
   }
 
   public getRoom(roomId: string): Room | undefined {

@@ -12,6 +12,36 @@ A multiplayer Battleship game server implementation using WebSockets for real-ti
 - Winner tracking and leaderboard
 - Single-player mode with AI opponent
 
+## Usage
+
+### Development
+
+```bash
+npm run start:dev
+```
+
+App served @ http://localhost:8181 with nodemon
+
+### Production
+
+```bash
+npm run start
+```
+
+App served @ http://localhost:8181 without nodemon
+
+### All commands
+
+| Command | Description |
+| ------- | ----------- |
+| `npm run start:dev` | App served @ http://localhost:8181 with nodemon |
+| `npm run start` | App served @ http://localhost:8181 without nodemon |
+| `npm run build` | Build the TypeScript project |
+| `npm run lint` | Run ESLint on the project |
+| `npm run lint:fix` | Fix ESLint issues automatically |
+| `npm run format` | Format code using Prettier |
+| `npm test` | Run tests with Jest |
+
 ## Technologies
 
 - TypeScript

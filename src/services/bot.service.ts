@@ -173,16 +173,17 @@ class BotService {
 
     return ships;
   }
-
   private getShipCells(ship: Ship): Position[] {
     const cells: Position[] = [];
     const { x, y } = ship.position;
 
     for (let i = 0; i < ship.length; i++) {
       if (ship.direction) {
-        cells.push({ x: x + i, y });
-      } else {
+        // Changed to match frontend expectation: direction=true means vertical (y+i)
         cells.push({ x, y: y + i });
+      } else {
+        // Changed to match frontend expectation: direction=false means horizontal (x+i)
+        cells.push({ x: x + i, y });
       }
     }
 

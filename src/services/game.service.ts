@@ -105,16 +105,16 @@ class GameService {
 
       this.wss.sendToPlayer(player.id, {
         type: 'start_game',
-        data: startGameData,
+        data: JSON.stringify(startGameData),
         id: 0,
       });
     });
 
     this.wss.sendToGame(gameId, {
       type: 'turn',
-      data: {
+      data: JSON.stringify({
         currentPlayer: game.currentPlayerIndex,
-      },
+      }),
       id: 0,
     });
   }
@@ -173,16 +173,16 @@ class GameService {
 
     this.wss.sendToGame(gameId, {
       type: 'attack',
-      data: response,
+      data: JSON.stringify(response),
       id: 0,
     });
 
     if (status === 'miss') {
       this.wss.sendToGame(gameId, {
         type: 'turn',
-        data: {
+        data: JSON.stringify({
           currentPlayer: game.currentPlayerIndex,
-        },
+        }),
         id: 0,
       });
     }
@@ -215,6 +215,7 @@ class GameService {
   }
 
   private endGame(game: Game, winnerId: string): void {
+    if (game.isFinished) return; // avoid double-ending
     game.isFinished = true;
     game.winnerId = winnerId;
 
@@ -224,9 +225,9 @@ class GameService {
 
     this.wss.sendToGame(game.id, {
       type: 'finish',
-      data: {
+      data: JSON.stringify({
         winPlayer: winnerId,
-      },
+      }),
       id: 0,
     });
   }
@@ -252,16 +253,17 @@ class GameService {
   private areAllShipsKilled(player: GamePlayer, targetShips: Ship[]): boolean {
     return targetShips.every((ship) => this.isShipKilled(player.shotCells, ship));
   }
-
   private getShipCells(ship: Ship): Position[] {
     const cells: Position[] = [];
     const { x, y } = ship.position;
 
     for (let i = 0; i < ship.length; i++) {
       if (ship.direction) {
-        cells.push({ x: x + i, y });
-      } else {
+        // Changed to match frontend expectation: direction=true means vertical (y+i)
         cells.push({ x, y: y + i });
+      } else {
+        // Changed to match frontend expectation: direction=false means horizontal (x+i)
+        cells.push({ x: x + i, y });
       }
     }
 

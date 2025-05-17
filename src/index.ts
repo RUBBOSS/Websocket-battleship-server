@@ -2,6 +2,7 @@ import 'dotenv/config';
 import WebSocketService from './services/websocket.service.js';
 import HttpServer from './http_server/index.js';
 import MessageHandler from './controllers/messageHandler.js';
+import ServerFix from './utils/server-fix.js';
 
 const HTTP_PORT = process.env.HTTP_PORT ? parseInt(process.env.HTTP_PORT, 10) : 3000;
 const WS_PORT = process.env.WS_PORT ? parseInt(process.env.WS_PORT, 10) : 8080;
@@ -10,6 +11,7 @@ class BattleshipApp {
   private httpServer: HttpServer;
   private wsService: WebSocketService;
   private messageHandler: MessageHandler;
+  private serverFix: ServerFix;
 
   constructor() {
     this.httpServer = new HttpServer(HTTP_PORT);
@@ -19,6 +21,11 @@ class BattleshipApp {
     this.messageHandler = MessageHandler.getInstance();
     this.messageHandler.setWebSocketService(this.wsService);
     this.messageHandler.initialize();
+
+    // Initialize server-side fixes
+    this.serverFix = ServerFix.getInstance();
+    this.serverFix.setWebSocketService(this.wsService);
+    this.serverFix.initialize();
   }
 
   public start(): void {

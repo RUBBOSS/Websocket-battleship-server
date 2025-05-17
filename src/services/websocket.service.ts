@@ -41,7 +41,7 @@ class WebSocketService {
           console.error('Error parsing message:', error);
           this.sendToClient(ws as ExtendedWebSocket, {
             type: 'error',
-            data: { message: 'Invalid message format' },
+            data: JSON.stringify({ message: 'Invalid message format' }),
             id: 0,
           });
         }
@@ -71,19 +71,28 @@ class WebSocketService {
 
     this.setupHeartbeat();
   }
+
   private setupHeartbeat(): void {
+    // Reduced heartbeat interval from 30000ms to 15000ms (15 seconds) for better connection monitoring
     const interval = setInterval(() => {
       this.wss.clients.forEach((ws) => {
         const extWs = ws as ExtendedWebSocket;
         if (extWs.isAlive === false) {
+          console.log('Terminating inactive connection');
           this.handleDisconnection(ws);
           return ws.terminate();
         }
 
         extWs.isAlive = false;
-        ws.ping();
+        try {
+          ws.ping();
+        } catch (error) {
+          console.error('Error sending ping:', error);
+          this.handleDisconnection(ws);
+          ws.terminate();
+        }
       });
-    }, 30000);
+    }, 15000); // Reduced from 30000ms
 
     this.wss.on('close', () => {
       clearInterval(interval);
@@ -91,44 +100,64 @@ class WebSocketService {
   }
 
   private handleDisconnection(ws: WebSocket): void {
-    const players = this.db.getAllPlayers();
-    const disconnectedPlayer = players.find((player) => player.connection === ws);
+    try {
+      const players = this.db.getAllPlayers();
+      const disconnectedPlayer = players.find((player) => player.connection === ws);
 
-    if (disconnectedPlayer) {
-      const room = this.db.getRoomByPlayer(disconnectedPlayer.id);
-      if (room) {
-        this.db.removeRoom(room.roomId.toString());
+      if (disconnectedPlayer) {
+        console.log(`Player ${disconnectedPlayer.name} disconnected`);
 
-        this.broadcastRoomsUpdate();
-      }
+        // Check for room and handle cleanup
+        const room = this.db.getRoomByPlayer(disconnectedPlayer.id);
+        if (room) {
+          console.log(`Removing room ${room.roomId} due to player disconnect`);
+          this.db.removeRoom(room.roomId.toString());
 
-      const game = this.db.getGameByPlayer(disconnectedPlayer.id);
-      if (game && !game.isFinished) {
-        const winner = game.players.find((player) => player.id !== disconnectedPlayer.id);
-        if (winner) {
-          game.isFinished = true;
-          game.winnerId = winner.id;
+          // Notify other players in the room
+          room.roomUsers.forEach((user) => {
+            if (user.index !== disconnectedPlayer.id) {
+              const otherPlayer = this.db.getPlayer(user.index.toString());
+              if (otherPlayer && otherPlayer.connection) {
+                this.sendToClient(otherPlayer.connection, {
+                  type: 'error',
+                  data: JSON.stringify({ message: 'Other player disconnected' }),
+                  id: 0,
+                });
+              }
+            }
+          });
 
-          this.db.updateGame(game);
-
-          const winnerPlayer = this.db.getPlayer(winner.id);
-          if (winnerPlayer) {
-            this.db.addWinner(winnerPlayer.name);
-
-            this.sendToGame(game.id, {
-              type: 'finish',
-              data: {
-                winPlayer: winner.id,
-              },
-              id: 0,
-            });
-
-            this.broadcastWinnersUpdate();
-          }
+          this.broadcastRoomsUpdate();
         }
+
+        // Remove entire game cleanup block to prevent premature bot-game end
+        // // Check for game and handle cleanup
+        // const game = this.db.getGameByPlayer(disconnectedPlayer.id);
+        // if (game && !game.isFinished) {
+        //   const winner = game.players.find((player) => player.id !== disconnectedPlayer.id);
+        //   if (winner) {
+        //     console.log(`Game ${game.id} finished due to player disconnect, winner: ${winner.id}`);
+        //     game.isFinished = true;
+        //     game.winnerId = winner.id;
+        //     this.db.updateGame(game);
+        //     const winnerPlayer = this.db.getPlayer(winner.id);
+        //     if (winnerPlayer) {
+        //       this.db.addWinner(winnerPlayer.name);
+        //       this.sendToGame(game.id, {
+        //         type: 'finish',
+        //         data: JSON.stringify({ winPlayer: winner.id, reason: 'disconnect' }),
+        //         id: 0,
+        //       });
+        //       this.broadcastWinnersUpdate();
+        //     }
+        //   }
+        // }
       }
+    } catch (error) {
+      console.error('Error handling disconnection:', error);
     }
   }
+
   private eventListeners: Record<string, Array<(...args: unknown[]) => void>> = {};
   private messageListeners: Array<(message: Message, ws: ExtendedWebSocket) => void> = [];
 
@@ -146,6 +175,7 @@ class WebSocketService {
   public onMessage(listener: (message: Message, ws: ExtendedWebSocket) => void): void {
     this.messageListeners.push(listener);
   }
+
   private emit(event: string, ...args: unknown[]): void {
     if (this.eventListeners[event]) {
       this.eventListeners[event].forEach((listener) => {
@@ -168,59 +198,93 @@ class WebSocketService {
       });
     }
   }
+
   public sendToClient(client: ExtendedWebSocket, message: Message): void {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(message));
-      console.log(`Sent to client: ${JSON.stringify(message)}`);
+    try {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(message));
+        console.log(`Sent to client: ${JSON.stringify(message)}`);
+      } else {
+        console.warn('Cannot send message, connection not open');
+      }
+    } catch (error) {
+      console.error('Error sending message to client:', error);
     }
   }
 
   public sendToPlayer(playerId: string, message: Message): void {
-    const player = this.db.getPlayer(playerId);
-    if (player && player.connection) {
-      this.sendToClient(player.connection, message);
+    try {
+      const player = this.db.getPlayer(playerId);
+      if (player && player.connection) {
+        this.sendToClient(player.connection, message);
+      } else {
+        console.warn(
+          `Cannot send message to player ${playerId}, player not found or not connected`,
+        );
+      }
+    } catch (error) {
+      console.error(`Error sending message to player ${playerId}:`, error);
     }
   }
 
   public sendToGame(gameId: string, message: Message): void {
-    const game = this.db.getGame(gameId);
-    if (game) {
-      game.players.forEach((gamePlayer) => {
-        const player = this.db.getPlayer(gamePlayer.id);
-        if (player && player.connection) {
-          this.sendToClient(player.connection, message);
-        }
-      });
+    try {
+      const game = this.db.getGame(gameId);
+      if (game) {
+        game.players.forEach((gamePlayer) => {
+          const player = this.db.getPlayer(gamePlayer.id);
+          if (player && player.connection) {
+            this.sendToClient(player.connection, message);
+          }
+        });
+      } else {
+        console.warn(`Cannot send message to game ${gameId}, game not found`);
+      }
+    } catch (error) {
+      console.error(`Error sending message to game ${gameId}:`, error);
     }
   }
+
   public broadcast(message: Message): void {
-    this.wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        (client as ExtendedWebSocket).send(JSON.stringify(message));
-      }
-    });
-    console.log(`Broadcasted: ${JSON.stringify(message)}`);
+    try {
+      this.wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+          (client as ExtendedWebSocket).send(JSON.stringify(message));
+        }
+      });
+      console.log(`Broadcasted: ${JSON.stringify(message)}`);
+    } catch (error) {
+      console.error('Error broadcasting message:', error);
+    }
   }
 
   public broadcastRoomsUpdate(): void {
-    const rooms = this.db.getAllRooms();
-    const availableRooms = rooms.filter((room) => room.roomUsers.length === 1);
+    try {
+      const rooms = this.db.getAllRooms();
+      const availableRooms = rooms.filter((room) => room.roomUsers.length < 2);
 
-    this.broadcast({
-      type: 'update_room',
-      data: availableRooms,
-      id: 0,
-    });
+      this.broadcast({
+        type: 'update_room',
+        data: JSON.stringify(availableRooms),
+        id: 0,
+      });
+    } catch (error) {
+      console.error('Error broadcasting rooms update:', error);
+    }
   }
 
   public broadcastWinnersUpdate(): void {
-    const winners = this.db.getWinners();
+    try {
+      const winners = this.db.getWinners();
 
-    this.broadcast({
-      type: 'update_winners',
-      data: winners,
-      id: 0,
-    });
+      this.broadcast({
+        type: 'update_winners',
+        data: JSON.stringify(winners),
+        id: 0,
+      });
+    } catch (error) {
+      console.error('Error broadcasting winners update:', error);
+    }
   }
 }
 
