@@ -73,7 +73,6 @@ class WebSocketService {
   }
 
   private setupHeartbeat(): void {
-    // Reduced heartbeat interval from 30000ms to 15000ms (15 seconds) for better connection monitoring
     const interval = setInterval(() => {
       this.wss.clients.forEach((ws) => {
         const extWs = ws as ExtendedWebSocket;
@@ -92,7 +91,7 @@ class WebSocketService {
           ws.terminate();
         }
       });
-    }, 15000); // Reduced from 30000ms
+    }, 15000);
 
     this.wss.on('close', () => {
       clearInterval(interval);
@@ -129,29 +128,6 @@ class WebSocketService {
 
           this.broadcastRoomsUpdate();
         }
-
-        // Remove entire game cleanup block to prevent premature bot-game end
-        // // Check for game and handle cleanup
-        // const game = this.db.getGameByPlayer(disconnectedPlayer.id);
-        // if (game && !game.isFinished) {
-        //   const winner = game.players.find((player) => player.id !== disconnectedPlayer.id);
-        //   if (winner) {
-        //     console.log(`Game ${game.id} finished due to player disconnect, winner: ${winner.id}`);
-        //     game.isFinished = true;
-        //     game.winnerId = winner.id;
-        //     this.db.updateGame(game);
-        //     const winnerPlayer = this.db.getPlayer(winner.id);
-        //     if (winnerPlayer) {
-        //       this.db.addWinner(winnerPlayer.name);
-        //       this.sendToGame(game.id, {
-        //         type: 'finish',
-        //         data: JSON.stringify({ winPlayer: winner.id, reason: 'disconnect' }),
-        //         id: 0,
-        //       });
-        //       this.broadcastWinnersUpdate();
-        //     }
-        //   }
-        // }
       }
     } catch (error) {
       console.error('Error handling disconnection:', error);

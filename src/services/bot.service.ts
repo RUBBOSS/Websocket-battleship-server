@@ -179,10 +179,8 @@ class BotService {
 
     for (let i = 0; i < ship.length; i++) {
       if (ship.direction) {
-        // Changed to match frontend expectation: direction=true means vertical (y+i)
         cells.push({ x, y: y + i });
       } else {
-        // Changed to match frontend expectation: direction=false means horizontal (x+i)
         cells.push({ x: x + i, y });
       }
     }

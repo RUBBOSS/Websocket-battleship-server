@@ -215,7 +215,7 @@ class GameService {
   }
 
   private endGame(game: Game, winnerId: string): void {
-    if (game.isFinished) return; // avoid double-ending
+    if (game.isFinished) return;
     game.isFinished = true;
     game.winnerId = winnerId;
 
@@ -259,10 +259,8 @@ class GameService {
 
     for (let i = 0; i < ship.length; i++) {
       if (ship.direction) {
-        // Changed to match frontend expectation: direction=true means vertical (y+i)
         cells.push({ x, y: y + i });
       } else {
-        // Changed to match frontend expectation: direction=false means horizontal (x+i)
         cells.push({ x: x + i, y });
       }
     }

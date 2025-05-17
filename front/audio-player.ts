@@ -1,10 +1,26 @@
-// Audio player with browser autoplay policy handling
+interface AudioSettings {
+    volume: number;
+    isSound: boolean;
+}
+
+type AudioType = 'shot' | 'killed' | 'miss';
+
 class AudioPlayer {
+    private sound: AudioSettings;
+    private music: AudioSettings;
+
+    private missAudio: HTMLAudioElement;
+    private killAudio: HTMLAudioElement;
+    private shotAudio: HTMLAudioElement;
+    private musicAudio: HTMLAudioElement;
+
+    private audioQueue: AudioType[];
+    private userInteracted: boolean;
+
     constructor() {
         this.sound = { volume: 0.5, isSound: true };
         this.music = { volume: 0.5, isSound: false };
 
-        // Initialize audio elements
         this.missAudio = new Audio();
         this.missAudio.src = "./public/assets/mp3/miss.mp3";
 
@@ -17,21 +33,16 @@ class AudioPlayer {
         this.musicAudio = new Audio();
         this.musicAudio.src = "./public/assets/mp3/music.mp3";
 
-        // Queue for sound effects
         this.audioQueue = [];
 
-        // Flag to track if the user has interacted with the page
         this.userInteracted = false;
 
-        // Add event listeners for user interaction
         this.setupUserInteractionListeners();
 
-        // Process audio queue periodically
         setInterval(() => this.processAudioQueue(), 100);
     }
 
-    // Setup listeners for user interaction events
-    setupUserInteractionListeners() {
+    private setupUserInteractionListeners(): void {
         const interactionEvents = [
             'click', 'touchstart', 'keydown', 'mousedown'
         ];
@@ -43,27 +54,25 @@ class AudioPlayer {
         });
     }
 
-    // Add sound to the queue
-    queueAudio(type) {
+    private queueAudio(type: AudioType): void {
         this.audioQueue.push(type);
         this.processAudioQueue();
     }
 
-    // Process the audio queue if user has interacted
-    processAudioQueue() {
+    private processAudioQueue(): void {
         if (!this.userInteracted || this.audioQueue.length === 0) return;
 
         const audioType = this.audioQueue.shift();
-        this.playAudioImmediately(audioType);
+        if (audioType) {
+            this.playAudioImmediately(audioType);
+        }
     }
 
-    // Queue audio based on event type
-    playAudio(type) {
+    public playAudio(type: AudioType): void {
         this.queueAudio(type);
     }
 
-    // Actual audio playing implementation
-    playAudioImmediately(type) {
+    private playAudioImmediately(type: AudioType): void {
         switch (type) {
             case 'shot':
                 this.shotShip();
@@ -77,12 +86,11 @@ class AudioPlayer {
         }
     }
 
-    // Settings getters and setters
-    getSetting(type) {
+    public getSetting(type: 'music' | 'sound'): AudioSettings {
         return type === 'music' ? this.music : this.sound;
     }
 
-    updateSetting(type, settings) {
+    public updateSetting(type: 'music' | 'sound', settings: Partial<AudioSettings>): void {
         if (type === 'music') {
             this.music = Object.assign(this.music, settings);
             this.music.isSound ? this.tryPlayMusic() : this.musicAudio.pause();
@@ -91,13 +99,11 @@ class AudioPlayer {
         }
     }
 
-    // Try to play music if user has interacted
-    tryPlayMusic() {
+    private tryPlayMusic(): void {
         if (this.userInteracted) {
             this.playMusic();
         } else {
-            // Add a one-time listener to play music after interaction
-            const playMusicOnce = () => {
+            const playMusicOnce = (): void => {
                 this.playMusic();
                 document.removeEventListener('click', playMusicOnce);
                 document.removeEventListener('touchstart', playMusicOnce);
@@ -108,17 +114,14 @@ class AudioPlayer {
         }
     }
 
-    // Play background music
-    playMusic() {
+    public playMusic(): void {
         this.musicAudio.volume = this.music.volume;
 
-        // Use a promise to handle autoplay restrictions
         const playPromise = this.musicAudio.play();
 
         if (playPromise !== undefined) {
             playPromise.catch(error => {
                 console.log("Music autoplay prevented: ", error);
-                // Music will be played later after user interaction
             });
         }
 
@@ -128,8 +131,7 @@ class AudioPlayer {
         };
     }
 
-    // Play ship hit sound
-    shotShip() {
+    public shotShip(): void {
         if (!this.sound.isSound) return;
 
         this.shotAudio.currentTime = 0;
@@ -150,8 +152,7 @@ class AudioPlayer {
         }
     }
 
-    // Play ship killed sound
-    killShip() {
+    public killShip(): void {
         if (!this.sound.isSound) return;
 
         this.killAudio.currentTime = 0;
@@ -172,8 +173,7 @@ class AudioPlayer {
         }
     }
 
-    // Play miss sound
-    missShip() {
+    public missShip(): void {
         if (!this.sound.isSound) return;
 
         this.missAudio.currentTime = 0;
@@ -195,5 +195,33 @@ class AudioPlayer {
     }
 }
 
-// Export a singleton instance
-window.AudioPlayerInstance = new AudioPlayer();
+declare global {
+    interface Window {
+        AudioPlayerInstance: {
+            playAudio: (type: string) => void;
+            killShip: () => void;
+            shotShip: () => void;
+            missShip: () => void;
+            playMusic: () => void;
+            updateSetting: (type: "music" | "sound", settings: Partial<AudioSettings>) => void;
+            sound: AudioSettings;
+            music: AudioSettings;
+        };
+    }
+}
+
+const audioPlayer = new AudioPlayer();
+window.AudioPlayerInstance = {
+    playAudio: (type: string) => {
+        if (type === 'shot' || type === 'killed' || type === 'miss') {
+            audioPlayer.playAudio(type);
+        }
+    },
+    killShip: () => audioPlayer.killShip(),
+    shotShip: () => audioPlayer.shotShip(),
+    missShip: () => audioPlayer.missShip(),
+    playMusic: () => audioPlayer.playMusic(),
+    updateSetting: (type, settings) => audioPlayer.updateSetting(type, settings),
+    get sound() { return audioPlayer.getSetting('sound'); },
+    get music() { return audioPlayer.getSetting('music'); }
+};
