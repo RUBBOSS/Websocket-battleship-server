@@ -60,8 +60,8 @@ npm install
 ```
 3. Configure environment variables in `.env` file (or use the defaults):
 ```
-HTTP_PORT=3000
-WS_PORT=8080
+HTTP_PORT=8181
+WS_PORT=3000
 ```
 
 ## Usage

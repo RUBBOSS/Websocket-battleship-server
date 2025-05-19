@@ -25,14 +25,14 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/132</span>
+                <span class='fraction'>0/134</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/45</span>
+                <span class='fraction'>0/46</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/114</span>
+                <span class='fraction'>0/115</span>
             </div>
         
             
@@ -602,13 +602,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -618,13 +619,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -636,7 +630,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -810,16 +810,16 @@ class GameService {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      this.wss.sendToPlayer(player.id, {</span>
         type: 'start_game',
-        data: startGameData,
+        data: JSON.stringify(startGameData),
         id: 0,
       });
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    this.wss.sendToGame(gameId, {</span>
       type: 'turn',
-      data: {
+      data: JSON.stringify({
         currentPlayer: game.currentPlayerIndex,
-      },
+      }),
       id: 0,
     });
   }
@@ -878,16 +878,16 @@ class GameService {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    this.wss.sendToGame(gameId, {</span>
       type: 'attack',
-      data: response,
+      data: JSON.stringify(response),
       id: 0,
     });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (status === 'miss') {</span>
 <span class="cstat-no" title="statement not covered" >      this.wss.sendToGame(gameId, {</span>
         type: 'turn',
-        data: {
+        data: JSON.stringify({
           currentPlayer: game.currentPlayerIndex,
-        },
+        }),
         id: 0,
       });
     }
@@ -920,6 +920,7 @@ class GameService {
   }
 &nbsp;
   private <span class="fstat-no" title="function not covered" >endGame(</span>game: Game, winnerId: string): void {
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (game.isFinished) <span class="cstat-no" title="statement not covered" >return;</span></span>
 <span class="cstat-no" title="statement not covered" >    game.isFinished = true;</span>
 <span class="cstat-no" title="statement not covered" >    game.winnerId = winnerId;</span>
 &nbsp;
@@ -929,9 +930,9 @@ class GameService {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    this.wss.sendToGame(game.id, {</span>
       type: 'finish',
-      data: {
+      data: JSON.stringify({
         winPlayer: winnerId,
-      },
+      }),
       id: 0,
     });
   }
@@ -957,16 +958,15 @@ class GameService {
   private <span class="fstat-no" title="function not covered" >areAllShipsKilled(</span>player: GamePlayer, targetShips: Ship[]): boolean {
 <span class="cstat-no" title="statement not covered" >    return targetShips.every(<span class="fstat-no" title="function not covered" >(s</span>hip) =&gt; <span class="cstat-no" title="statement not covered" >this.isShipKilled(player.shotCells, ship))</span>;</span>
   }
-&nbsp;
   private <span class="fstat-no" title="function not covered" >getShipCells(</span>ship: Ship): Position[] {
     const cells: Position[] = <span class="cstat-no" title="statement not covered" >[];</span>
     const { x, y } = <span class="cstat-no" title="statement not covered" >ship.position;</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    for (let i = <span class="cstat-no" title="statement not covered" >0;</span> i &lt; ship.length; i++) {</span>
 <span class="cstat-no" title="statement not covered" >      if (ship.direction) {</span>
-<span class="cstat-no" title="statement not covered" >        cells.push({ x: x + i, y });</span>
-      } else {
 <span class="cstat-no" title="statement not covered" >        cells.push({ x, y: y + i });</span>
+      } else {
+<span class="cstat-no" title="statement not covered" >        cells.push({ x: x + i, y });</span>
       }
     }
 &nbsp;
@@ -1030,7 +1030,7 @@ export default GameService;
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-16T21:23:51.731Z
+                at 2025-05-19T09:40:30.725Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
