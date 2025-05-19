@@ -60,8 +60,8 @@ npm install
 ```
 3. Configure environment variables in `.env` file (or use the defaults):
 ```
-HTTP_PORT=3000
-WS_PORT=8080
+HTTP_PORT=8181
+WS_PORT=3000
 ```
 
 ## Usage
@@ -71,8 +71,8 @@ WS_PORT=8080
 ```
 npm run start:dev
 ```
-- HTTP server @ `http://localhost:3000`
-- WebSocket server @ `ws://localhost:8080`
+- HTTP server @ `http://localhost:8181`
+- WebSocket server @ `ws://localhost:3000`
 
 ### Code Quality
 

@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/19</span>
+                <span class='fraction'>0/22</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/19</span>
+                <span class='fraction'>0/22</span>
             </div>
         
             
@@ -107,23 +107,37 @@
 <a name='L42'></a><a href='#L42'>42</a>
 <a name='L43'></a><a href='#L43'>43</a>
 <a name='L44'></a><a href='#L44'>44</a>
-<a name='L45'></a><a href='#L45'>45</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -155,6 +169,7 @@
 import WebSocketService from './services/websocket.service.js';
 import HttpServer from './http_server/index.js';
 import MessageHandler from './controllers/messageHandler.js';
+import ServerFix from './utils/server-fix.js';
 &nbsp;
 const HTTP_PORT = <span class="cstat-no" title="statement not covered" >process.env.HTTP_PORT ? parseInt(process.env.HTTP_PORT, 10) : 3000;</span>
 const WS_PORT = <span class="cstat-no" title="statement not covered" >process.env.WS_PORT ? parseInt(process.env.WS_PORT, 10) : 8080;</span>
@@ -163,6 +178,7 @@ class BattleshipApp {
   private httpServer: HttpServer;
   private wsService: WebSocketService;
   private messageHandler: MessageHandler;
+  private serverFix: ServerFix;
 &nbsp;
 <span class="fstat-no" title="function not covered" >  constructor() {</span>
 <span class="cstat-no" title="statement not covered" >    this.httpServer = new HttpServer(HTTP_PORT);</span>
@@ -172,6 +188,11 @@ class BattleshipApp {
 <span class="cstat-no" title="statement not covered" >    this.messageHandler = MessageHandler.getInstance();</span>
 <span class="cstat-no" title="statement not covered" >    this.messageHandler.setWebSocketService(this.wsService);</span>
 <span class="cstat-no" title="statement not covered" >    this.messageHandler.initialize();</span>
+&nbsp;
+    // Initialize server-side fixes
+<span class="cstat-no" title="statement not covered" >    this.serverFix = ServerFix.getInstance();</span>
+<span class="cstat-no" title="statement not covered" >    this.serverFix.setWebSocketService(this.wsService);</span>
+<span class="cstat-no" title="statement not covered" >    this.serverFix.initialize();</span>
   }
 &nbsp;
   public <span class="fstat-no" title="function not covered" >start(</span>): void {
@@ -202,7 +223,7 @@ const app = <span class="cstat-no" title="statement not covered" >new Battleship
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-16T21:23:51.731Z
+                at 2025-05-19T09:40:30.725Z
             </div>
         <script src="../prettify.js"></script>
         <script>
